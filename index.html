@@ -392,8 +392,8 @@ function renderPendingList(pending) {
           <td>${c.ville || 'France'}</td>
           <td>
             <span style="font-size:12px">
-              🪪 ${c.documentsVerification?.identiteURL ? '✅' : '❌'} 
-              📜 ${c.documentsVerification?.certificatURL ? '✅' : '❌'}
+              🪪 ${c.documentsVerification?.identite !== 'manquant' ? '✅' : '❌'} 
+              📜 ${c.documentsVerification?.certificat !== 'manquant' ? '✅' : '❌'}
             </span>
           </td>
           <td style="display:flex;gap:6px;align-items:center">
@@ -425,8 +425,8 @@ function renderCoachesList(coaches) {
           <td><strong>${c.tarif || '—'}€</strong>/séance</td>
           <td>
             <span style="font-size:12px">
-              🪪 ${c.documentsVerification?.identiteURL ? '✅' : '❌'} 
-              📜 ${c.documentsVerification?.certificatURL ? '✅' : '❌'}
+              🪪 ${c.documentsVerification?.identite !== 'manquant' ? '✅' : '❌'} 
+              📜 ${c.documentsVerification?.certificat !== 'manquant' ? '✅' : '❌'}
             </span>
           </td>
           <td>${c.verifie ? '<span class="badge badge-green">✓ Vérifié</span>' : c.rejete ? '<span class="badge badge-red">✗ Rejeté</span>' : '<span class="badge badge-amber">⏳ En attente</span>'}</td>
