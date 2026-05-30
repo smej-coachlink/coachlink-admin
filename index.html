@@ -3,147 +3,279 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CoachLink Admin</title>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<title>CoachLink — Administration</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: Arial, sans-serif; background:#F1F5F9; }
-#loginBox { max-width:400px; margin:100px auto; background:white; border-radius:16px; padding:40px; box-shadow:0 4px 20px rgba(0,0,0,0.1); text-align:center; }
-#loginBox h2 { margin-bottom:24px; color:#1E3A5F; font-size:22px; }
-#loginBox input { width:100%; padding:12px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:14px; margin-bottom:12px; display:block; }
-#loginBox button { width:100%; padding:14px; background:#4F46E5; color:white; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; }
-#loginBox button:hover { background:#4338CA; }
-#loginError { color:red; font-size:12px; margin-top:10px; }
-#dashboard { display:none; }
-.header { background:#1E3A5F; color:white; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; }
-.header h1 { font-size:20px; }
-.nav { background:white; border-bottom:1px solid #E2E8F0; padding:8px 24px; display:flex; gap:4px; }
-.nav button { padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; background:none; color:#64748B; }
-.nav button.active { background:#EEF2FF; color:#4F46E5; }
-.container { padding:24px; max-width:1200px; margin:0 auto; }
-.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:24px; }
-.stat { background:white; border-radius:12px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
-.stat .label { font-size:12px; color:#64748B; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
-.stat .value { font-size:28px; font-weight:800; }
-.card { background:white; border-radius:12px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:20px; }
-.card h2 { font-size:16px; font-weight:700; margin-bottom:16px; }
-table { width:100%; border-collapse:collapse; }
-th { text-align:left; font-size:11px; font-weight:600; color:#64748B; text-transform:uppercase; padding:8px 12px; border-bottom:2px solid #F1F5F9; }
-td { padding:12px; border-bottom:1px solid #F8FAFC; font-size:13px; vertical-align:middle; }
-.tab { display:none; }
-.tab.active { display:block; }
-.badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; display:inline-block; }
-.green { background:#D1FAE5; color:#065F46; }
-.orange { background:#FEF3C7; color:#92400E; }
-.red { background:#FEE2E2; color:#991B1B; }
-.blue { background:#DBEAFE; color:#1E40AF; }
-.btn { padding:6px 12px; border:none; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600; margin:2px; }
-.btn-green { background:#10B981; color:white; }
-.btn-red { background:#EF4444; color:white; }
-.btn-blue { background:#4F46E5; color:white; }
-.btn-gray { background:#F1F5F9; color:#64748B; }
-.empty { text-align:center; color:#94A3B8; padding:40px; }
-.modal-bg { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center; }
-.modal-bg.open { display:flex; }
-.modal { background:white; border-radius:16px; padding:28px; max-width:580px; width:90%; max-height:85vh; overflow-y:auto; position:relative; }
-.modal-close { position:absolute; top:14px; right:18px; background:none; border:none; font-size:22px; cursor:pointer; color:#94A3B8; }
-.info-row { display:flex; gap:12px; padding:8px 0; border-bottom:1px solid #F8FAFC; }
-.info-label { font-size:12px; color:#64748B; font-weight:600; min-width:130px; }
-.info-val { font-size:13px; color:#1E293B; }
-.doc-btn { display:inline-block; padding:6px 12px; background:#EEF2FF; color:#4F46E5; border-radius:8px; font-size:12px; font-weight:600; text-decoration:none; margin:4px 4px 0 0; }
-.sig-badge { background:#EF4444; color:white; border-radius:50%; width:18px; height:18px; font-size:10px; display:inline-flex; align-items:center; justify-content:center; margin-left:4px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --indigo: #4F46E5; --indigo-dark: #3730A3; --indigo-pale: #EEF2FF;
+  --green: #10B981; --green-pale: #F0FDF4;
+  --red: #EF4444; --red-pale: #FEF2F2;
+  --amber: #F59E0B; --amber-pale: #FFFBEB;
+  --gray-50: #F9FAFB; --gray-100: #F3F4F6; --gray-200: #E5E7EB;
+  --gray-400: #9CA3AF; --gray-600: #4B5563; --gray-800: #1F2937;
+  --dark: #111827;
+}
+body { font-family: 'Inter', sans-serif; background: var(--gray-50); color: var(--gray-800); }
+
+/* LOGIN */
+.login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--indigo-dark), var(--indigo)); }
+.login-card { background: white; border-radius: 20px; padding: 40px; width: 380px; box-shadow: 0 24px 60px rgba(0,0,0,0.2); }
+.login-logo { font-size: 28px; font-weight: 800; color: var(--indigo-dark); margin-bottom: 4px; }
+.login-logo span { color: var(--amber); }
+.login-badge { font-size: 11px; font-weight: 600; color: var(--gray-400); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 28px; }
+.login-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+.input-group { margin-bottom: 14px; }
+.input-group label { font-size: 12px; font-weight: 600; color: var(--gray-600); display: block; margin-bottom: 6px; }
+.input-group input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--gray-200); border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+.input-group input:focus { border-color: var(--indigo); }
+.login-btn { width: 100%; padding: 14px; background: var(--indigo); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: opacity 0.2s; }
+.login-btn:hover { opacity: 0.9; }
+.login-error { color: var(--red); font-size: 12px; margin-top: 10px; text-align: center; }
+
+/* LAYOUT */
+.admin-layout { display: flex; min-height: 100vh; }
+.sidebar { width: 240px; background: var(--dark); padding: 24px 0; flex-shrink: 0; position: fixed; height: 100vh; overflow-y: auto; }
+.sidebar-logo { padding: 0 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sidebar-logo .logo { font-size: 20px; font-weight: 800; color: white; }
+.sidebar-logo .logo span { color: var(--amber); }
+.sidebar-logo .badge { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.sidebar-nav { padding: 16px 12px; }
+.sidebar-section { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 0 8px; margin: 16px 0 8px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: background 0.2s; color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 500; text-decoration: none; }
+.nav-item:hover { background: rgba(255,255,255,0.06); color: white; }
+.nav-item.active { background: var(--indigo); color: white; }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.sidebar-bottom { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+.main { margin-left: 240px; flex: 1; }
+.topbar { background: white; padding: 16px 28px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+.topbar-title { font-size: 18px; font-weight: 700; }
+.topbar-badge { background: var(--indigo-pale); color: var(--indigo); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.content { padding: 28px; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card { background: white; border-radius: 16px; padding: 20px; border-left: 4px solid; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.stat-icon { font-size: 24px; margin-bottom: 10px; }
+.stat-val { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+.stat-lbl { font-size: 12px; color: var(--gray-400); }
+
+/* CARDS */
+.card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.card-title { font-size: 15px; font-weight: 700; }
+
+/* TABLE */
+table { width: 100%; border-collapse: collapse; }
+th { font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 1px; padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--gray-100); }
+td { padding: 14px 12px; border-bottom: 1px solid var(--gray-100); font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--gray-50); }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.badge-green { background: var(--green-pale); color: var(--green); }
+.badge-red { background: var(--red-pale); color: var(--red); }
+.badge-amber { background: var(--amber-pale); color: var(--amber); }
+.badge-indigo { background: var(--indigo-pale); color: var(--indigo); }
+
+/* BUTTONS */
+.btn { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; font-family: 'Inter', sans-serif; transition: opacity 0.2s; }
+.btn:hover { opacity: 0.85; }
+.btn-green { background: var(--green-pale); color: var(--green); border: 1px solid var(--green); }
+.btn-red { background: var(--red-pale); color: var(--red); border: 1px solid var(--red); }
+.btn-indigo { background: var(--indigo); color: white; }
+.btn-gray { background: var(--gray-100); color: var(--gray-600); }
+
+/* COACH MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal { background: white; border-radius: 20px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; }
+.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--gray-100); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 1; }
+.modal-title { font-size: 18px; font-weight: 700; }
+.modal-close { width: 32px; height: 32px; background: var(--gray-100); border-radius: 10px; border: none; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.modal-body { padding: 24px; }
+
+.coach-profile-header { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 24px; padding: 20px; background: var(--indigo-pale); border-radius: 16px; }
+.coach-photo { width: 80px; height: 80px; border-radius: 50%; background: var(--indigo); display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; overflow: hidden; }
+.coach-photo img { width: 100%; height: 100%; object-fit: cover; }
+.coach-profile-info h2 { font-size: 20px; font-weight: 800; color: var(--gray-800); margin-bottom: 4px; }
+.coach-profile-info p { font-size: 13px; color: var(--gray-600); margin-bottom: 4px; }
+.coach-spec-badge { display: inline-block; background: var(--indigo); color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-top: 4px; }
+
+.profile-section { margin-bottom: 20px; }
+.profile-section h3 { font-size: 13px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.profile-row { display: flex; gap: 12px; margin-bottom: 8px; align-items: flex-start; }
+.profile-label { font-size: 13px; font-weight: 600; color: var(--gray-600); width: 140px; flex-shrink: 0; }
+.profile-value { font-size: 13px; color: var(--gray-800); flex: 1; }
+
+.doc-preview { display: flex; gap: 16px; }
+.doc-card { flex: 1; background: var(--gray-50); border-radius: 12px; padding: 16px; border: 1px solid var(--gray-200); text-align: center; }
+.doc-card-icon { font-size: 36px; margin-bottom: 8px; }
+.doc-card-title { font-size: 12px; font-weight: 700; color: var(--gray-800); margin-bottom: 4px; }
+.doc-card-status { font-size: 11px; }
+
+.modal-actions { padding: 20px 24px; border-top: 1px solid var(--gray-100); display: flex; gap: 12px; justify-content: flex-end; position: sticky; bottom: 0; background: white; }
+
+/* ALERT */
+.alert { padding: 14px 16px; border-radius: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.alert-amber { background: var(--amber-pale); border: 1px solid #FCD34D; }
+.alert-text { font-size: 13px; color: #92400E; }
+
+.hidden { display: none; }
 </style>
 </head>
 <body>
 
-<div id="loginBox">
-  <h2>🔐 CoachLink Admin</h2>
-  <input type="email" id="email" placeholder="Email admin" />
-  <input type="password" id="password" placeholder="Mot de passe" />
-  <button id="loginBtn">Se connecter</button>
-  <div id="loginError"></div>
-</div>
-
-<div id="dashboard">
-  <div class="header">
-    <h1>🏠 CoachLink Admin</h1>
-    <span id="userEmail" style="font-size:13px;opacity:0.7"></span>
-  </div>
-  <div class="nav">
-    <button class="active" onclick="switchTab('overview',this)">📊 Vue d'ensemble</button>
-    <button onclick="switchTab('coachs',this)">👨‍💼 Coachs</button>
-    <button onclick="switchTab('clients',this)">👥 Clients</button>
-    <button onclick="switchTab('reservations',this)">📅 Réservations</button>
-    <button onclick="switchTab('revenus',this)">💰 Revenus</button>
-    <button onclick="switchTab('signalements',this)" id="sigBtn">🚨 Signalements</button>
-  </div>
-  <div class="container">
-
-    <div id="overview" class="tab active">
-      <div class="stats">
-        <div class="stat"><div class="label">Coachs vérifiés</div><div class="value" id="s1">—</div></div>
-        <div class="stat"><div class="label">Clients inscrits</div><div class="value" id="s2">—</div></div>
-        <div class="stat"><div class="label">Réservations</div><div class="value" id="s3">—</div></div>
-        <div class="stat"><div class="label">Signalements</div><div class="value" id="s4">—</div></div>
-      </div>
-      <div class="card">
-        <h2>⏳ Coachs en attente</h2>
-        <div id="pendingList"><div class="empty">Chargement...</div></div>
-      </div>
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Coach<span>Link</span></div>
+    <div class="login-badge">🛡️ Espace Administrateur</div>
+    <div class="login-title">Connexion sécurisée</div>
+    <div class="input-group">
+      <label>Email administrateur</label>
+      <input type="email" id="adminEmail" placeholder="admin@coachlink.app" />
     </div>
-
-    <div id="coachs" class="tab">
-      <div class="card">
-        <h2>👨‍💼 Tous les coachs</h2>
-        <div id="coachsList"><div class="empty">Chargement...</div></div>
-      </div>
+    <div class="input-group">
+      <label>Mot de passe</label>
+      <input type="password" id="adminPassword" placeholder="••••••••" />
     </div>
-
-    <div id="clients" class="tab">
-      <div class="card">
-        <h2>👥 Tous les clients</h2>
-        <div id="clientsList"><div class="empty">Chargement...</div></div>
-      </div>
-    </div>
-
-    <div id="reservations" class="tab">
-      <div class="card">
-        <h2>📅 Réservations</h2>
-        <div id="resaList"><div class="empty">Chargement...</div></div>
-      </div>
-    </div>
-
-    <div id="revenus" class="tab">
-      <div class="stats">
-        <div class="stat"><div class="label">Volume total</div><div class="value" id="r1">—</div></div>
-        <div class="stat"><div class="label">Part coachs (85%)</div><div class="value" style="color:#16A34A" id="r2">—</div></div>
-        <div class="stat"><div class="label">Commission CoachLink (15%)</div><div class="value" style="color:#4F46E5" id="r3">—</div></div>
-      </div>
-      <div class="card">
-        <h2>💰 Détail des paiements</h2>
-        <div id="revenusList"><div class="empty">Chargement...</div></div>
-      </div>
-    </div>
-
-    <div id="signalements" class="tab">
-      <div class="card">
-        <h2>🚨 Signalements</h2>
-        <div id="sigList"><div class="empty">Chargement...</div></div>
-      </div>
-    </div>
-
+    <button class="login-btn" onclick="handleLogin()">Accéder au tableau de bord</button>
+    <div class="login-error hidden" id="loginError">Email ou mot de passe incorrect.</div>
   </div>
 </div>
 
-<!-- MODAL COACH -->
-<div class="modal-bg" id="coachModal">
+<!-- MODAL PROFIL COACH -->
+<div id="coachModal" class="modal-overlay hidden">
   <div class="modal">
-    <button class="modal-close" onclick="document.getElementById('coachModal').classList.remove('open')">✕</button>
-    <h3 id="modalName" style="font-size:18px;font-weight:700;margin-bottom:16px"></h3>
-    <div id="modalBody"></div>
-    <div id="modalFooter" style="display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid #F1F5F9"></div>
+    <div class="modal-header">
+      <div class="modal-title">📋 Dossier du coach</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- Contenu dynamique -->
+    </div>
+    <div class="modal-actions" id="modalActions">
+      <!-- Boutons dynamiques -->
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN INTERFACE -->
+<div id="adminInterface" class="admin-layout hidden">
+
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo">Coach<span>Link</span></div>
+      <div class="badge">Administration</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section">Principal</div>
+      <a class="nav-item active" onclick="showTab('dashboard', this)"><span class="nav-icon">📊</span> Tableau de bord</a>
+      <a class="nav-item" onclick="showTab('coaches', this)"><span class="nav-icon">🎓</span> Coachs <span id="pendingBadge" class="badge badge-amber" style="margin-left:auto;font-size:10px;display:none"></span></a>
+      <a class="nav-item" onclick="showTab('clients', this)"><span class="nav-icon">👤</span> Clients</a>
+      <a class="nav-item" onclick="showTab('reservations', this)"><span class="nav-icon">📅</span> Réservations</a>
+      <div class="sidebar-section">Finances</div>
+      <a class="nav-item" onclick="showTab('revenus', this)"><span class="nav-icon">💰</span> Revenus</a>
+      <div class="sidebar-section">Paramètres</div>
+      <a class="nav-item" onclick="showTab('settings', this)"><span class="nav-icon">⚙️</span> Configuration</a>
+    </div>
+    <div class="sidebar-bottom">
+      <a class="nav-item" onclick="handleLogout()" style="color:rgba(255,255,255,0.4)"><span class="nav-icon">🚪</span> Déconnexion</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">Tableau de bord</div>
+      <div class="topbar-badge">🛡️ Admin CoachLink</div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="tab-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card" style="border-color:#4F46E5"><div class="stat-icon">🎓</div><div class="stat-val" id="statCoaches" style="color:#4F46E5">—</div><div class="stat-lbl">Coachs inscrits</div></div>
+          <div class="stat-card" style="border-color:#10B981"><div class="stat-icon">👤</div><div class="stat-val" id="statClients" style="color:#10B981">—</div><div class="stat-lbl">Clients inscrits</div></div>
+          <div class="stat-card" style="border-color:#F59E0B"><div class="stat-icon">⏳</div><div class="stat-val" id="statPending" style="color:#F59E0B">—</div><div class="stat-lbl">En attente</div></div>
+          <div class="stat-card" style="border-color:#EF4444"><div class="stat-icon">💰</div><div class="stat-val" id="statRevenus" style="color:#EF4444">0 €</div><div class="stat-lbl">Revenus CoachLink</div></div>
+        </div>
+        <div id="alertContainer"></div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">🎓 Dossiers en attente de vérification</div></div>
+          <div id="pendingList">Chargement...</div>
+        </div>
+      </div>
+
+      <!-- COACHES -->
+      <div id="tab-coaches" class="hidden">
+        <div class="card">
+          <div class="card-header"><div class="card-title">🎓 Tous les coachs</div></div>
+          <div id="coachesList">Chargement...</div>
+        </div>
+      </div>
+
+      <!-- CLIENTS -->
+      <div id="tab-clients" class="hidden">
+        <div class="card">
+          <div class="card-header"><div class="card-title">👤 Tous les clients</div></div>
+          <div id="clientsList">Chargement...</div>
+        </div>
+      </div>
+
+      <!-- RESERVATIONS -->
+      <div id="tab-reservations" class="hidden">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📅 Toutes les réservations</div></div>
+          <table>
+            <thead><tr><th>Client</th><th>Coach</th><th>Date</th><th>Montant</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td>Marie Lambert</td><td>Amina Diallo</td><td>13 Mai 10:00</td><td><strong>60€</strong></td><td><span class="badge badge-green">✓ Confirmée</span></td></tr>
+              <tr><td>Fatou Koné</td><td>Léa Fontaine</td><td>14 Mai 14:30</td><td><strong>45€</strong></td><td><span class="badge badge-green">✓ Confirmée</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- REVENUS -->
+      <div id="tab-revenus" class="hidden">
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card" style="border-color:#10B981"><div class="stat-icon">💰</div><div class="stat-val" style="color:#10B981">160 €</div><div class="stat-lbl">Ce mois</div></div>
+          <div class="stat-card" style="border-color:#4F46E5"><div class="stat-icon">📈</div><div class="stat-val" style="color:#4F46E5">15%</div><div class="stat-lbl">Commission</div></div>
+          <div class="stat-card" style="border-color:#F59E0B"><div class="stat-icon">⭐</div><div class="stat-val" style="color:#F59E0B">0 €</div><div class="stat-lbl">Abonnements premium</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Détail des commissions</div></div>
+          <table>
+            <thead><tr><th>Client</th><th>Coach</th><th>Séance</th><th>Commission (15%)</th></tr></thead>
+            <tbody>
+              <tr><td>Marie Lambert</td><td>Amina Diallo</td><td>60€</td><td><strong style="color:#10B981">+9€</strong></td></tr>
+              <tr><td>Fatou Koné</td><td>Léa Fontaine</td><td>45€</td><td><strong style="color:#10B981">+6,75€</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="tab-settings" class="hidden">
+        <div class="card">
+          <div class="card-header"><div class="card-title">⚙️ Configuration CoachLink</div></div>
+          <table>
+            <tbody>
+              <tr><td><strong>Commission par séance</strong></td><td><span class="badge badge-indigo">15%</span></td></tr>
+              <tr><td><strong>Abonnement premium coach</strong></td><td><span class="badge badge-indigo">29€/mois</span></td></tr>
+              <tr><td><strong>Badge Coach vérifié</strong></td><td><span class="badge badge-indigo">49€</span></td></tr>
+              <tr><td><strong>Emails automatiques</strong></td><td><span class="badge badge-green">✓ Actifs</span></td></tr>
+              <tr><td><strong>Base de données</strong></td><td><span class="badge badge-green">✓ Firebase</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -156,208 +288,239 @@ firebase.initializeApp({
   messagingSenderId: "863725679803",
   appId: "1:863725679803:web:f569c67bace078862c259e"
 });
-
-const auth = firebase.auth();
 const db = firebase.firestore();
-const ADMIN = 'coachlinkcontact@proton.me';
-var coachStore = {};
+const auth = firebase.auth();
 
-// LOGIN
-document.getElementById('loginBtn').addEventListener('click', function() {
-  var email = document.getElementById('email').value.trim();
-  var pass = document.getElementById('password').value;
-  document.getElementById('loginError').textContent = '';
-  if (!email || !pass) { document.getElementById('loginError').textContent = 'Remplis tous les champs.'; return; }
-  auth.signInWithEmailAndPassword(email, pass).catch(function(e) {
-    document.getElementById('loginError').textContent = 'Email ou mot de passe incorrect.';
-  });
-});
+let allCoaches = [];
+let selectedCoach = null;
 
-auth.onAuthStateChanged(function(user) {
-  if (user && user.email === ADMIN) {
-    document.getElementById('loginBox').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('userEmail').textContent = user.email;
-    loadAll();
-  } else if (user) {
-    auth.signOut();
-    document.getElementById('loginError').textContent = '⛔ Accès refusé.';
-  } else {
-    document.getElementById('loginBox').style.display = 'block';
-    document.getElementById('dashboard').style.display = 'none';
+async function handleLogin() {
+  const email = document.getElementById('adminEmail').value;
+  const password = document.getElementById('adminPassword').value;
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('adminInterface').classList.remove('hidden');
+    loadData();
+  } catch (error) {
+    document.getElementById('loginError').classList.remove('hidden');
   }
-});
-
-function switchTab(id, btn) {
-  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
-  document.querySelectorAll('.nav button').forEach(function(b){ b.classList.remove('active'); });
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
 }
 
-function loadAll() {
-  loadCoachs();
-  loadClients();
-  loadResa();
-  loadSig();
-}
-
-function loadCoachs() {
-  db.collection('coachs').get().then(function(snap) {
-    var coachs = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-    coachs.forEach(function(c){ 
-    // Handle Firestore nested map
-    var raw = c;
-    if (raw.documentsVerification && raw.documentsVerification.toJSON) {
-      raw.documentsVerification = raw.documentsVerification.toJSON();
-    }
-    coachStore[c.id] = raw; 
-  });
-    document.getElementById('s1').textContent = coachs.filter(function(c){ return c.verifie; }).length;
-    var pending = coachs.filter(function(c){ return !c.verifie && !c.rejete; });
-    
-    if (pending.length === 0) {
-      document.getElementById('pendingList').innerHTML = '<div class="empty">✅ Aucun coach en attente</div>';
-    } else {
-      var html = '<table><tr><th>Nom</th><th>Email</th><th>Spécialité</th><th>Ville</th><th>Actions</th></tr>';
-      pending.forEach(function(c) {
-        html += '<tr><td><strong>' + (c.prenom||'') + ' ' + (c.nom||'') + '</strong></td><td>' + (c.email||'') + '</td><td>' + (c.specialite||'—') + '</td><td>' + (c.ville||'—') + '</td><td>' +
-          '<button class="btn btn-blue" onclick="showCoach(\'' + c.id + '\')">👁️ Voir</button> ' +
-          '<button class="btn btn-green" onclick="approveCoach(\'' + c.id + '\')">✅ Approuver</button> ' +
-          '<button class="btn btn-red" onclick="rejectCoach(\'' + c.id + '\')">❌ Rejeter</button>' +
-          '</td></tr>';
-      });
-      html += '</table>';
-      document.getElementById('pendingList').innerHTML = html;
-    }
-
-    var html2 = '<table><tr><th>Nom</th><th>Email</th><th>Spécialité</th><th>Ville</th><th>Statut</th><th>Actions</th></tr>';
-    coachs.forEach(function(c) {
-      var badge = c.verifie ? '<span class="badge green">Vérifié</span>' : c.rejete ? '<span class="badge red">Rejeté</span>' : '<span class="badge orange">En attente</span>';
-      html2 += '<tr><td><strong>' + (c.prenom||'') + ' ' + (c.nom||'') + '</strong></td><td>' + (c.email||'') + '</td><td>' + (c.specialite||'—') + '</td><td>' + (c.ville||'—') + '</td><td>' + badge + '</td><td>' +
-        '<button class="btn btn-blue" onclick="showCoach(\'' + c.id + '\')">👁️ Voir</button> ' +
-        '<button class="btn btn-red" onclick="deleteCoach(\'' + c.id + '\')">🗑️</button>' +
-        '</td></tr>';
-    });
-    html2 += '</table>';
-    document.getElementById('coachsList').innerHTML = html2;
+function handleLogout() {
+  auth.signOut().then(() => {
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('adminInterface').classList.add('hidden');
   });
 }
 
-function loadClients() {
-  db.collection('clients').get().then(function(snap) {
-    var clients = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-    document.getElementById('s2').textContent = clients.length;
-    var html = '<table><tr><th>Prénom</th><th>Nom</th><th>Email</th><th>Inscrit le</th></tr>';
-    clients.forEach(function(c) {
-      var date = c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-FR') : '—';
-      html += '<tr><td>' + (c.prenom||'—') + '</td><td>' + (c.nom||'—') + '</td><td>' + (c.email||'—') + '</td><td>' + date + '</td></tr>';
-    });
-    html += '</table>';
-    document.getElementById('clientsList').innerHTML = clients.length ? html : '<div class="empty">Aucun client</div>';
-  });
+function showTab(tab, el) {
+  document.querySelectorAll('[id^="tab-"]').forEach(e => e.classList.add('hidden'));
+  document.getElementById('tab-' + tab).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const titles = { dashboard: 'Tableau de bord', coaches: 'Coachs', clients: 'Clients', reservations: 'Réservations', revenus: 'Revenus', settings: 'Configuration' };
+  document.getElementById('pageTitle').textContent = titles[tab] || tab;
 }
 
-function loadResa() {
-  db.collection('reservations').get().then(function(snap) {
-    var resas = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-    document.getElementById('s3').textContent = resas.length;
-    var total = 0;
-    resas.forEach(function(r) {
-      var m = parseFloat((r.montant||'0').toString().replace('€','').replace(',','.'));
-      if (!isNaN(m)) total += m;
-    });
-    document.getElementById('r1').textContent = total.toFixed(0) + '€';
-    document.getElementById('r2').textContent = Math.round(total * 0.85) + '€';
-    document.getElementById('r3').textContent = Math.round(total * 0.15) + '€';
-
-    var html = '<table><tr><th>Client</th><th>Coach</th><th>Plan</th><th>Montant</th><th>Part coach</th><th>Commission</th><th>Date</th><th>Statut</th></tr>';
-    resas.forEach(function(r) {
-      var m = parseFloat((r.montant||'0').toString().replace('€','').replace(',','.')) || 0;
-      html += '<tr><td>' + (r.clientPrenom||'') + ' ' + (r.clientNom||'') + '</td><td>' + (r.coachNom||'—') + '</td><td>' + (r.plan||'—') + '</td>' +
-        '<td><strong>' + m + '€</strong></td>' +
-        '<td style="color:#16A34A;font-weight:700">' + Math.round(m*0.85) + '€</td>' +
-        '<td style="color:#4F46E5;font-weight:700">' + Math.round(m*0.15) + '€</td>' +
-        '<td>' + (r.date||'—') + '</td>' +
-        '<td><span class="badge green">' + (r.statut||'confirmé') + '</span></td></tr>';
-    });
-    html += '</table>';
-    document.getElementById('resaList').innerHTML = resas.length ? html : '<div class="empty">Aucune réservation</div>';
-    document.getElementById('revenusList').innerHTML = resas.length ? html : '<div class="empty">Aucun paiement</div>';
-  });
-}
-
-function loadSig() {
-  db.collection('signalements').get().then(function(snap) {
-    var sigs = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-    var pending = sigs.filter(function(s){ return !s.traite; });
-    document.getElementById('s4').textContent = pending.length;
-    if (pending.length > 0) {
-      document.getElementById('sigBtn').innerHTML = '🚨 Signalements <span class="sig-badge">' + pending.length + '</span>';
-    }
-    var html = '<table><tr><th>Motif</th><th>Description</th><th>Date</th><th>Statut</th><th>Action</th></tr>';
-    sigs.forEach(function(s) {
-      var date = s.createdAt ? new Date(s.createdAt).toLocaleDateString('fr-FR') : '—';
-      html += '<tr><td><strong>' + (s.motif||'—') + '</strong></td><td>' + (s.description||'—') + '</td><td>' + date + '</td>' +
-        '<td><span class="badge ' + (s.traite ? 'green' : 'red') + '">' + (s.traite ? 'Traité' : 'En attente') + '</span></td>' +
-        '<td>' + (!s.traite ? '<button class="btn btn-blue" onclick="markDone(\'' + s.id + '\')">✅ Traité</button>' : '') + '</td></tr>';
-    });
-    html += '</table>';
-    document.getElementById('sigList').innerHTML = sigs.length ? html : '<div class="empty">✅ Aucun signalement</div>';
-  });
-}
-
-function showCoach(id) {
-  var c = coachStore[id];
-  if (!c) return;
-  document.getElementById('modalName').textContent = '👤 ' + (c.prenom||'') + ' ' + (c.nom||'');
-  var docs = '';
-  var dv = c.documentsVerification || {};
-  var identiteURL = dv.identiteURL || '';
-  var certificatURL = dv.certificatURL || '';
-  if (identiteURL) docs += '<a href="' + identiteURL + '" target="_blank" class="doc-btn">📄 Voir la pièce d\'identité</a>';
-  else docs += '<span style="color:#EF4444;font-size:12px">❌ Pas de pièce d\'identité</span> ';
-  if (certificatURL) docs += '<a href="' + certificatURL + '" target="_blank" class="doc-btn">🏆 Voir le certificat</a>';
-  else docs += '<span style="color:#EF4444;font-size:12px;margin-left:8px">❌ Pas de certificat</span>';
+async function loadData() {
+  const coachSnapshot = await db.collection('coachs').get();
+  allCoaches = coachSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   
-  document.getElementById('modalBody').innerHTML =
-    '<div class="info-row"><span class="info-label">Email</span><span class="info-val">' + (c.email||'—') + '</span></div>' +
-    '<div class="info-row"><span class="info-label">Spécialité</span><span class="info-val">' + (c.specialite||'—') + '</span></div>' +
-    '<div class="info-row"><span class="info-label">Ville</span><span class="info-val">' + (c.ville||'—') + '</span></div>' +
-    '<div class="info-row"><span class="info-label">Tarif</span><span class="info-val">' + (c.tarif ? c.tarif + '€/séance' : '—') + '</span></div>' +
-    '<div class="info-row"><span class="info-label">Bio</span><span class="info-val">' + (c.bio||'—') + '</span></div>' +
-    '<div class="info-row"><span class="info-label">Statut</span><span class="info-val">' + (c.verifie ? '✅ Vérifié' : c.rejete ? '❌ Rejeté' : '⏳ En attente') + '</span></div>' +
-    '<div class="info-row"><span class="info-label">Documents</span><span class="info-val">' + docs + '</span></div>';
+  const pending = allCoaches.filter(c => !c.verifie && !c.rejete);
+  const verified = allCoaches.filter(c => c.verifie);
+  
+  document.getElementById('statCoaches').textContent = allCoaches.length;
+  document.getElementById('statPending').textContent = pending.length;
 
-  var footer = '';
-  if (!c.verifie) footer += '<button class="btn btn-green" onclick="approveCoach(\'' + c.id + '\');document.getElementById(\'coachModal\').classList.remove(\'open\')">✅ Approuver</button>';
-  if (!c.rejete) footer += '<button class="btn btn-red" onclick="rejectCoach(\'' + c.id + '\');document.getElementById(\'coachModal\').classList.remove(\'open\')">❌ Rejeter</button>';
-  footer += '<button class="btn btn-gray" onclick="document.getElementById(\'coachModal\').classList.remove(\'open\')">Fermer</button>';
-  document.getElementById('modalFooter').innerHTML = footer;
-  document.getElementById('coachModal').classList.add('open');
-}
-
-function approveCoach(id) {
-  db.collection('coachs').doc(id).update({ verifie: true, rejete: false }).then(function() {
-    alert('✅ Coach approuvé !'); loadCoachs();
-  });
-}
-
-function rejectCoach(id) {
-  if (confirm('Rejeter ce coach ?')) {
-    db.collection('coachs').doc(id).update({ verifie: false, rejete: true }).then(function() { loadCoachs(); });
+  if (pending.length > 0) {
+    document.getElementById('pendingBadge').textContent = pending.length;
+    document.getElementById('pendingBadge').style.display = 'inline-flex';
+    document.getElementById('alertContainer').innerHTML = `
+      <div class="alert alert-amber">
+        <span>⚠️</span>
+        <span class="alert-text">${pending.length} dossier(s) en attente de vérification</span>
+      </div>`;
   }
+
+  // Liste en attente sur dashboard
+  renderPendingList(pending);
+  
+  // Liste complète
+  renderCoachesList(allCoaches);
+
+  // Clients
+  const clientSnapshot = await db.collection('clients').get();
+  document.getElementById('statClients').textContent = clientSnapshot.size;
+  const clients = clientSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  document.getElementById('clientsList').innerHTML = `
+    <table>
+      <thead><tr><th>Prénom</th><th>Nom</th><th>Email</th><th>Inscrit le</th></tr></thead>
+      <tbody>${clients.map(c => `
+        <tr>
+          <td><strong>${c.prenom || '—'}</strong></td>
+          <td>${c.nom || '—'}</td>
+          <td>${c.email || '—'}</td>
+          <td>${c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-FR') : '—'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
 }
 
-function deleteCoach(id) {
-  if (confirm('Supprimer définitivement ce coach ?')) {
-    db.collection('coachs').doc(id).delete().then(function() { loadCoachs(); });
+function renderPendingList(pending) {
+  if (pending.length === 0) {
+    document.getElementById('pendingList').innerHTML = '<p style="color:#9CA3AF;padding:20px;text-align:center">✅ Aucun dossier en attente</p>';
+    return;
   }
+  document.getElementById('pendingList').innerHTML = `
+    <table>
+      <thead><tr><th>Coach</th><th>Spécialité</th><th>Ville</th><th>Documents</th><th>Actions</th></tr></thead>
+      <tbody>${pending.map(c => `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:40px;height:40px;background:#EEF2FF;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;flex-shrink:0">
+                ${c.photoProfile ? `<img src="${c.photoProfile}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : '🧠'}
+              </div>
+              <div>
+                <div style="font-weight:700">${c.nom || '—'}</div>
+                <div style="font-size:11px;color:#9CA3AF">${c.email || ''}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-indigo">${c.specialite || '—'}</span></td>
+          <td>${c.ville || 'France'}</td>
+          <td>
+            <span style="font-size:12px">
+              🪪 ${c.documentsVerification?.identite !== 'manquant' ? '✅' : '❌'} 
+              📜 ${c.documentsVerification?.certificat !== 'manquant' ? '✅' : '❌'}
+            </span>
+          </td>
+          <td style="display:flex;gap:6px;align-items:center">
+            <button class="btn btn-indigo" onclick="openCoachModal('${c.id}')">👁️ Voir le dossier</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
 }
 
-function markDone(id) {
-  db.collection('signalements').doc(id).update({ traite: true }).then(function() { loadSig(); });
+function renderCoachesList(coaches) {
+  document.getElementById('coachesList').innerHTML = `
+    <table>
+      <thead><tr><th>Coach</th><th>Spécialité</th><th>Tarif</th><th>Documents</th><th>Statut</th><th>Actions</th></tr></thead>
+      <tbody>${coaches.map(c => `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:40px;height:40px;background:#EEF2FF;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;flex-shrink:0">
+                ${c.photoProfile ? `<img src="${c.photoProfile}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : '🧠'}
+              </div>
+              <div>
+                <div style="font-weight:700">${c.nom || '—'}</div>
+                <div style="font-size:11px;color:#9CA3AF">${c.email || ''}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-indigo">${c.specialite || '—'}</span></td>
+          <td><strong>${c.tarif || '—'}€</strong>/séance</td>
+          <td>
+            <span style="font-size:12px">
+              🪪 ${c.documentsVerification?.identite !== 'manquant' ? '✅' : '❌'} 
+              📜 ${c.documentsVerification?.certificat !== 'manquant' ? '✅' : '❌'}
+            </span>
+          </td>
+          <td>${c.verifie ? '<span class="badge badge-green">✓ Vérifié</span>' : c.rejete ? '<span class="badge badge-red">✗ Rejeté</span>' : '<span class="badge badge-amber">⏳ En attente</span>'}</td>
+          <td>
+            <button class="btn btn-indigo" onclick="openCoachModal('${c.id}')" style="margin-right:4px">👁️ Dossier</button>
+            ${!c.verifie && !c.rejete ? `
+              <button class="btn btn-green" onclick="approveCoach('${c.id}','${c.nom}')">✅</button>
+              <button class="btn btn-red" onclick="rejectCoach('${c.id}','${c.nom}')">❌</button>
+            ` : ''}
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
 }
+
+function openCoachModal(coachId) {
+  selectedCoach = allCoaches.find(c => c.id === coachId);
+  if (!selectedCoach) return;
+  const c = selectedCoach;
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="coach-profile-header">
+      <div class="coach-photo">
+        ${c.photoProfile ? `<img src="${c.photoProfile}" alt="Photo de profil">` : '🧠'}
+      </div>
+      <div class="coach-profile-info">
+        <h2>${c.nom || '—'}</h2>
+        <p>📧 ${c.email || '—'}</p>
+        <p>📍 ${c.ville || 'Non précisé'} · 💰 ${c.tarif || '—'}€/séance</p>
+        <span class="coach-spec-badge">${c.specialite || '—'}</span>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h3>Informations</h3>
+      <div class="profile-row"><span class="profile-label">Inscrit le</span><span class="profile-value">${c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-FR') : '—'}</span></div>
+      <div class="profile-row"><span class="profile-label">Statut</span><span class="profile-value">${c.verifie ? '✅ Vérifié' : c.rejete ? '❌ Rejeté' : '⏳ En attente'}</span></div>
+      <div class="profile-row"><span class="profile-label">Bio</span><span class="profile-value">${c.bio || 'Non renseignée'}</span></div>
+    </div>
+
+    <div class="profile-section">
+      <h3>Documents fournis</h3>
+      <div class="doc-preview">
+        <div class="doc-card">
+          <div class="doc-card-icon">🪪</div>
+          <div class="doc-card-title">Pièce d'identité</div>
+          <div class="doc-card-status">${c.documentsVerification?.identite && c.documentsVerification.identite !== 'manquant' ? `<span class="badge badge-green">✅ Fournie</span><br><small style="color:#6B7280;margin-top:4px;display:block">${c.documentsVerification.identite}</small>` : '<span class="badge badge-red">❌ Manquante</span>'}</div>
+        </div>
+        <div class="doc-card">
+          <div class="doc-card-icon">📜</div>
+          <div class="doc-card-title">Certificat de coaching</div>
+          <div class="doc-card-status">${c.documentsVerification?.certificat && c.documentsVerification.certificat !== 'manquant' ? `<span class="badge badge-green">✅ Fourni</span><br><small style="color:#6B7280;margin-top:4px;display:block">${c.documentsVerification.certificat}</small>` : '<span class="badge badge-red">❌ Manquant</span>'}</div>
+        </div>
+      </div>
+    </div>
+
+    ${!c.verifie && !c.rejete ? `
+    <div style="background:#FFF7ED;border-radius:12px;padding:14px;border:1px solid #FCD34D">
+      <p style="font-size:13px;color:#92400E">⚠️ Ce coach est en attente de vérification. Vérifie ses documents avant d'approuver ou rejeter.</p>
+    </div>` : ''}
+  `;
+
+  document.getElementById('modalActions').innerHTML = `
+    <button class="btn btn-gray" onclick="closeModal()">Fermer</button>
+    ${!c.verifie && !c.rejete ? `
+      <button class="btn btn-red" onclick="rejectCoach('${c.id}','${c.nom}');closeModal()">❌ Rejeter le dossier</button>
+      <button class="btn btn-green" onclick="approveCoach('${c.id}','${c.nom}');closeModal()">✅ Approuver le coach</button>
+    ` : c.verifie ? `<span class="badge badge-green" style="padding:8px 16px">✅ Coach approuvé</span>` : `<span class="badge badge-red" style="padding:8px 16px">❌ Coach rejeté</span>`}
+  `;
+
+  document.getElementById('coachModal').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('coachModal').classList.add('hidden');
+  selectedCoach = null;
+}
+
+async function approveCoach(id, nom) {
+  if (!confirm(`Approuver ${nom} ? Il pourra se connecter et apparaître sur CoachLink.`)) return;
+  await db.collection('coachs').doc(id).update({ verifie: true, disponible: true, rejete: false });
+  alert(`✅ ${nom} est maintenant vérifié et visible sur CoachLink !`);
+  loadData();
+}
+
+async function rejectCoach(id, nom) {
+  const raison = prompt(`Raison du rejet pour ${nom} (optionnel) :`);
+  await db.collection('coachs').doc(id).update({ verifie: false, disponible: false, rejete: true, raisonRejet: raison || '' });
+  alert(`❌ ${nom} a été rejeté.`);
+  loadData();
+}
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
+document.getElementById('coachModal').addEventListener('click', (e) => { if (e.target === document.getElementById('coachModal')) closeModal(); });
 </script>
 </body>
 </html>
